@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   MapContainer,
   TileLayer,
@@ -20,7 +20,6 @@ L.Icon.Default.mergeOptions({
   shadowUrl: markerShadow,
 });
 
-// Custom red icon
 const redIcon = new L.Icon({
   iconUrl: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
   iconSize: [32, 32],
@@ -28,9 +27,21 @@ const redIcon = new L.Icon({
 });
 
 export default function Map() {
-  const [markers, setMarkers] = useState([]);
+  const [markers, setMarkers] = useState(() => {
+    try {
+      const stored = localStorage.getItem('markers');
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
+  });
+
   const [newMarker, setNewMarker] = useState(null);
   const [input, setInput] = useState('');
+
+  useEffect(() => {
+    localStorage.setItem('markers', JSON.stringify(markers));
+  }, [markers]);
 
   function MapClickHandler() {
     useMapEvents({
@@ -43,12 +54,14 @@ export default function Map() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (input.trim() === '') return;
+    if (!input.trim() || !newMarker) return;
 
-    setMarkers((prev) => [
-      ...prev,
-      { ...newMarker, description: input },
-    ]);
+    const updatedMarkers = [
+      ...markers,
+      { ...newMarker, description: input.trim() },
+    ];
+
+    setMarkers(updatedMarkers);
     setNewMarker(null);
     setInput('');
   };
@@ -69,16 +82,13 @@ export default function Map() {
 
         {markers.map((marker, index) => (
           <React.Fragment key={index}>
-            <Marker
-              position={[marker.lat, marker.lng]}
-              icon={redIcon}
-            />
+            <Marker position={[marker.lat, marker.lng]} icon={redIcon} />
             <Marker
               position={[marker.lat, marker.lng]}
               icon={L.divIcon({
                 className: '',
                 html: `<div class="inline-block whitespace-nowrap bg-white border border-gray-300 text-sm text-black px-2 py-1 rounded-md shadow-md max-w-[300px]">${marker.description}</div>`,
-                iconAnchor: [-10, 40], 
+                iconAnchor: [-10, 40],
               })}
               interactive={false}
             />
@@ -87,11 +97,7 @@ export default function Map() {
 
         {newMarker && (
           <Marker position={[newMarker.lat, newMarker.lng]} icon={redIcon}>
-            <Popup
-              closeButton={false}
-              autoClose={false}
-              closeOnClick={false}
-            >
+            <Popup closeButton={false} autoClose={false} closeOnClick={false}>
               <form
                 onSubmit={handleSubmit}
                 className="flex flex-col gap-2 p-2"
