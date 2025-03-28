@@ -1,6 +1,9 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function CreateReport() {
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     description: "",
     address: "",
@@ -41,11 +44,41 @@ export default function CreateReport() {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(formData);
-  };
 
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+          formData.address
+        )}`
+      );
+      const data = await res.json();
+
+      if (data.length === 0) {
+        alert("Could not find location.");
+        return;
+      }
+
+      const { lat, lon } = data[0];
+      const newMarker = {
+        lat: parseFloat(lat),
+        lng: parseFloat(lon),
+        description: formData.description,
+      };
+
+      const existingMarkers = JSON.parse(localStorage.getItem("markers")) || [];
+      localStorage.setItem(
+        "markers",
+        JSON.stringify([...existingMarkers, newMarker])
+      );
+
+      navigate("/map");
+    } catch (err) {
+      console.error("Geocoding failed:", err);
+      alert("Something went wrong while locating the address.");
+    }
+  };
   return (
     <div className="mt-12 flex justify-between px-52 gap-10">
       <div className="w-[500px] rounded-xl p-6">
@@ -100,10 +133,11 @@ export default function CreateReport() {
       </div>
 
       <div className="w-[600px] rounded-xl flex flex-col h-auto p-4">
-
-
         <div className="flex gap-3 mt-auto">
-          <button className="w-full bg-blue-500 text-white py-2 px-4 rounded-xl">
+          <button
+            className="w-full bg-blue-500 text-white py-2 px-4 rounded-xl"
+            onClick={handleSubmit}
+          >
             Submit
           </button>
           <button className="w-full border border-gray-500 py-2 px-4 rounded-xl">

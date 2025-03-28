@@ -37,7 +37,7 @@ export default function Map() {
       return [];
     }
   });
-
+  
   const [newMarker, setNewMarker] = useState(null);
   const [input, setInput] = useState("");
 
