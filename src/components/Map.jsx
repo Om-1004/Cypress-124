@@ -1,17 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from "react";
 import {
   MapContainer,
   TileLayer,
   Marker,
   useMapEvents,
   Popup,
-} from 'react-leaflet';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
+} from "react-leaflet";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
 
-import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
-import markerIcon from 'leaflet/dist/images/marker-icon.png';
-import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
+import markerIcon from "leaflet/dist/images/marker-icon.png";
+import markerShadow from "leaflet/dist/images/marker-shadow.png";
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -21,15 +21,17 @@ L.Icon.Default.mergeOptions({
 });
 
 const redIcon = new L.Icon({
-  iconUrl: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
+  iconUrl: "https://maps.google.com/mapfiles/ms/icons/red-dot.png",
   iconSize: [32, 32],
   iconAnchor: [16, 32],
 });
 
 export default function Map() {
+  const newMarkerRef = useRef(null);
+
   const [markers, setMarkers] = useState(() => {
     try {
-      const stored = localStorage.getItem('markers');
+      const stored = localStorage.getItem("markers");
       return stored ? JSON.parse(stored) : [];
     } catch {
       return [];
@@ -37,15 +39,25 @@ export default function Map() {
   });
 
   const [newMarker, setNewMarker] = useState(null);
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState("");
 
   useEffect(() => {
-    localStorage.setItem('markers', JSON.stringify(markers));
+    localStorage.setItem("markers", JSON.stringify(markers));
   }, [markers]);
+
+  useEffect(() => {
+    if (newMarkerRef.current) {
+      newMarkerRef.current.openPopup();
+    }
+  }, [newMarker]);
 
   function MapClickHandler() {
     useMapEvents({
       click(e) {
+        const isClickInsidePopup =
+          e.originalEvent?.target.closest(".leaflet-popup");
+        if (isClickInsidePopup) return;
+
         setNewMarker({ lat: e.latlng.lat, lng: e.latlng.lng });
       },
     });
@@ -63,7 +75,7 @@ export default function Map() {
 
     setMarkers(updatedMarkers);
     setNewMarker(null);
-    setInput('');
+    setInput("");
   };
 
   return (
@@ -82,11 +94,37 @@ export default function Map() {
 
         {markers.map((marker, index) => (
           <React.Fragment key={index}>
-            <Marker position={[marker.lat, marker.lng]} icon={redIcon} />
+            <Marker position={[marker.lat, marker.lng]} icon={redIcon}>
+              <Popup>
+                <div className="flex flex-col gap-2">
+                  <p className="text-sm">{marker.description}</p>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      setMarkers((prev) =>
+                        prev.filter(
+                          (m, i) =>
+                            !(
+                              m.lat === marker.lat &&
+                              m.lng === marker.lng &&
+                              i === index
+                            )
+                        )
+                      );
+                    }}
+                    className="bg-red-600 text-white px-3 py-1 rounded-md hover:bg-red-700 transition"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </Popup>
+            </Marker>
+
             <Marker
               position={[marker.lat, marker.lng]}
               icon={L.divIcon({
-                className: '',
+                className: "",
                 html: `<div class="inline-block whitespace-nowrap bg-white border border-gray-300 text-sm text-black px-2 py-1 rounded-md shadow-md max-w-[300px]">${marker.description}</div>`,
                 iconAnchor: [-10, 40],
               })}
@@ -96,12 +134,13 @@ export default function Map() {
         ))}
 
         {newMarker && (
-          <Marker position={[newMarker.lat, newMarker.lng]} icon={redIcon}>
+          <Marker
+            position={[newMarker.lat, newMarker.lng]}
+            icon={redIcon}
+            ref={newMarkerRef}
+          >
             <Popup closeButton={false} autoClose={false} closeOnClick={false}>
-              <form
-                onSubmit={handleSubmit}
-                className="flex flex-col gap-2 p-2"
-              >
+              <form onSubmit={handleSubmit} className="flex flex-col gap-2 p-2">
                 <input
                   type="text"
                   value={input}
