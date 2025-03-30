@@ -4,12 +4,9 @@ import Header from "./components/Header";
 import HeroSection from "./components/HeroSection.jsx";
 import Map from "./components/Map.jsx";
 import CreateReport from "./components/CreateReport.jsx";
-import TempComponent from "./components/tempComponent.jsx";
+import Login from "./login.jsx";
 
 export default function App() {
-  // console.log(import.meta.env.VITE_TEST);
-
-
   return (
     <BrowserRouter>
       <Header />
@@ -17,7 +14,7 @@ export default function App() {
         <Route path="/" element={<HeroSection />} />
         <Route path="/map" element={<Map />} />
         <Route path="/createReport" element={<CreateReport />} />
-        <Route path="/random" element={<TempComponent />} />
+        <Route path="/login" element={<Login />} />
       </Routes>
     </BrowserRouter>
   );
