@@ -4,7 +4,8 @@ import Header from "./components/Header";
 import HeroSection from "./components/HeroSection.jsx";
 import Map from "./components/Map.jsx";
 import CreateReport from "./components/CreateReport.jsx";
-import Login from "./login.jsx";
+import Login from "./Login.jsx";
+import SignUp from "./components/SignUp.jsx";
 
 export default function App() {
   return (
@@ -14,6 +15,7 @@ export default function App() {
         <Route path="/" element={<HeroSection />} />
         <Route path="/map" element={<Map />} />
         <Route path="/createReport" element={<CreateReport />} />
+        <Route path="sign-up" element={<SignUp />} />
         <Route path="/login" element={<Login />} />
       </Routes>
     </BrowserRouter>
