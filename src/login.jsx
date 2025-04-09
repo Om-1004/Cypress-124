@@ -3,6 +3,7 @@ import signUpIMG from "./assets/img/signupLogo.jpeg";
 import { Eye, EyeOff } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import supabase from "./config/supabaseClient";
+import { toast } from "react-hot-toast";
 
 export default function Login() {
   const [formData, setFormData] = useState({
@@ -45,6 +46,43 @@ export default function Login() {
     if (error) {
       setError(error.message);
     } else {
+      const userId = data.user.id;
+      const now = new Date().toISOString();
+
+       const { data: existingProfile, error: profileFetchError } = await supabase
+        .from("user_profiles")
+        .select("last_login")
+        .eq("id", userId)
+        .single();
+
+      if (profileFetchError && profileFetchError.code !== "PGRST116") {
+        console.error("Error checking user profile:", profileFetchError.message);
+      }
+
+      if (!existingProfile) {
+        await supabase.from("user_profiles").insert([
+          { id: userId, last_login: now }
+        ]);
+      }
+
+      const lastLogin = existingProfile?.last_login || new Date(0).toISOString();
+
+      const { count: newMarkersCount, error: markerError } = await supabase
+        .from("markers")
+        .select("*", { count: "exact", head: true })
+        .gt("created_at", lastLogin);
+
+      if (markerError) {
+        console.error("Marker count error:", markerError.message);
+      } else if (newMarkersCount > 0) {
+        toast.success(`You have ${newMarkersCount} new problems since your last visit!`);
+      }
+
+      await supabase
+        .from("user_profiles")
+        .update({ last_login: now })
+        .eq("id", userId);
+
       const fullName = data.user?.user_metadata?.full_name || "User";
       console.log("Hi", fullName);
       navigate("/");

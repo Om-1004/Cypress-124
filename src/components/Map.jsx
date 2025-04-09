@@ -120,7 +120,6 @@ export default function Map() {
         />
         <MapClickHandler />
 
-        {/* Render all fetched markers */}
         {Array.isArray(markers) &&
           markers.map((marker) => {
             if (!marker || !marker.lat || !marker.lng) return null;

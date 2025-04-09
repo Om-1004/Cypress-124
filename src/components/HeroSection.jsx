@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 export default function HeroSection() {
   return (
-    <section className="relative bg-gradient-to-br from-gray-900 via-black to-gray-800 text-white py-24 px-6 text-center">
+    <section className="relative bg-gradient-to-br from-gray-900 via-black to-gray-800 text-white py-24 px-6 text-center h-screen">
       <div className="absolute inset-0 bg-black opacity-50"></div>
 
       <div className="relative z-10 max-w-5xl mx-auto flex flex-col items-center">
@@ -27,7 +27,7 @@ export default function HeroSection() {
             <p className="text-gray-300 mt-2 text-[20px]">
               View and track issues in your area with a dynamic map interface.
             </p>
-          </div>
+           </div>
           <div className="p-6 bg-white bg-opacity-10 backdrop-blur-md rounded-xl shadow-lg transition-transform transform hover:scale-105">
             <h3 className="text-2xl font-semibold text-blue-400">
               📝 <br />

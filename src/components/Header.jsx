@@ -5,8 +5,6 @@ import supabase from "../config/supabaseClient";
 
 const navLinks = [
   { name: "Home", path: "/" },
-  { name: "Inquiry", path: "/inquiry" },
-  { name: "About Us", path: "/about" },
   { name: "Map", path: "/map" },
 ];
 

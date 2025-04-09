@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import supabase from "../config/supabaseClient";
 
 export default function CreateReport() {
   const navigate = useNavigate();
@@ -61,24 +62,27 @@ export default function CreateReport() {
       }
 
       const { lat, lon } = data[0];
-      const newMarker = {
-        lat: parseFloat(lat),
-        lng: parseFloat(lon),
-        description: formData.description,
-      };
 
-      const existingMarkers = JSON.parse(localStorage.getItem("markers")) || [];
-      localStorage.setItem(
-        "markers",
-        JSON.stringify([...existingMarkers, newMarker])
-      );
+      const { error } = await supabase.from("markers").insert([
+        {
+          lat: parseFloat(lat),
+          lng: parseFloat(lon),
+          description: formData.description,
+        },
+      ]);
 
-      navigate("/map");
+      if (error) {
+        console.error("Supabase insert error:", error.message);
+        alert("Something went wrong while saving to the database.");
+      } else {
+        navigate("/map"); 
+      }
     } catch (err) {
       console.error("Geocoding failed:", err);
       alert("Something went wrong while locating the address.");
     }
   };
+
   return (
     <div className="mt-12 flex justify-between px-52 gap-10">
       <div className="w-[500px] rounded-xl p-6">

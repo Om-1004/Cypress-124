@@ -6,7 +6,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
 
   const login = (email, password) => {
-    setUser({ email }); // Simulate successful login
+    setUser({ email }); 
   };
 
   const logout = () => {
