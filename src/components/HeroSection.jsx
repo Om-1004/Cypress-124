@@ -27,7 +27,7 @@ export default function HeroSection() {
             <p className="text-gray-300 mt-2 text-[20px]">
               View and track issues in your area with a dynamic map interface.
             </p>
-           </div>
+          </div>
           <div className="p-6 bg-white bg-opacity-10 backdrop-blur-md rounded-xl shadow-lg transition-transform transform hover:scale-105">
             <h3 className="text-2xl font-semibold text-blue-400">
               📝 <br />
@@ -48,9 +48,11 @@ export default function HeroSection() {
         </div>
 
         <div className="flex flex-wrap justify-center gap-6">
-          <button className="bg-green-500 hover:bg-green-600 text-white text-lg font-medium px-8 py-3 rounded-full shadow-lg transition-transform transform hover:scale-110 no-underline">
-            View Map
-          </button>
+          <Link to={"/map"}>
+            <button className="bg-green-500 hover:bg-green-600 text-white text-lg font-medium px-8 py-3 rounded-full shadow-lg transition-transform transform hover:scale-110 no-underline">
+              View Map
+            </button>
+          </Link>
 
           <Link to={"/createReport"}>
             <button className="bg-blue-500 hover:bg-blue-600 text-white text-lg font-medium px-8 py-3 rounded-full shadow-lg transition-transform transform hover:scale-110">
